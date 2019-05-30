@@ -4,6 +4,9 @@ JOB_REPOS=(
 https://github.com/openstack/tripleo-ci.git
 https://github.com/rdo-infra/rdo-jobs.git
 https://github.com/rdo-infra/ci-config.git
+https://github.com/rdo-infra/review.rdoproject.org-config.git
+https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-config.git
+https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-jobs.git
 )
 BRANCHES=(
 queens
@@ -47,17 +50,18 @@ function check_voting {
   local repo=$2
 
   case "$repo" in
-    *tripleo-ci*)
+    *tripleo-ci.git)
       local uri="http://zuul.openstack.org/api/job/$jobname"
-      purty_print " ... fetching voting info from $uri"
-      local voting=$(curl $uri | jq '.[] | .voting')
       ;;
-    *rdo-jobs*)
+    *review.rdoproject.org-config.git|*rdo-jobs.git)
       local uri="https://review.rdoproject.org/zuul/api/job/$jobname"
-      purty_print " ... fetching voting info from $uri"
-      local voting=$(curl $uri | jq '.[] | .voting')
+      ;;
+    *tripleo-ci-internal*)
+      local uri="https://sf.hosted.upshift.rdu2.redhat.com/zuul/api/tenant/tripleo-ci-internal/job/$jobname"
       ;;
   esac
+  purty_print " ... fetching voting info from $uri"
+  local voting=$(curl -k $uri | jq '.[] | .voting')
   purty_print "$jobname is voting: $voting"
 }
 
@@ -69,20 +73,30 @@ function get_job_uri {
   local linenumber=$5
 
   # https://github.com/openstack/tripleo-ci/blob/master/zuul.d/standalone-jobs.yaml#L87
-  local job_uri="${repo::-4}/blob/master/$jobpath#L$linenumber"
+  # https://code.engineering.redhat.com/gerrit/gitweb?p=openstack/tripleo-ci-internal-jobs.git;a=blob_plain;f=zuul.d/standalone-jobs.yaml;hb=HEAD
+  case "$repo" in
+    *tripleo-ci-internal*)
+      local internal_base_uri="https://code.engineering.redhat.com/gerrit/gitweb?p=openstack"
+      local job_uri="$internal_base_uri/$(basename $repo);a=blob_plain;f=$jobpath;hb=HEAD"
+      ;;
+    *)
+      local job_uri="${repo::-4}/blob/master/$jobpath#L$linenumber"
+  esac
   purty_print "$jobname DEFINITION $job_uri"
-  #$BROWSER $job_uri
 }
 
 function get_zuul_builds_uri {
   local jobname=$1
   local repo=$2
   case "$repo" in
-    *tripleo-ci*)
+    *tripleo-ci.git)
       local zuul_builds="http://zuul.openstack.org/builds?job_name=$jobname"
       ;;
-    *rdo-jobs*)
+    *rdo-jobs.git)
       local zuul_builds="https://review.rdoproject.org/zuul/builds?job_name=$jobname"
+      ;;
+    *tripleo-ci-internal*)
+      local zuul_builds="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/builds?job_name=$jobname"
       ;;
   esac
   purty_print "$jobname ZUUL BUILDS $zuul_builds"
@@ -113,11 +127,23 @@ function process_job_definition {
       local linenumber=$(echo $res | awk -F ":" '{print $2}')
       check_voting $jobname $repo
       case "$repo" in
-        *tripleo-ci*)
+        *tripleo-ci.git)
           local jobpath=$(echo $filename | awk -F "/tripleo-ci/" '{print $2}')
           ;;
-        *rdo-jobs*)
+        *rdo-jobs.git)
           local jobpath=$(echo $filename | awk -F "/rdo-jobs/" '{print $2}')
+          ;;
+        *review.rdoproject.org-config.git)
+          local jobpath=$(echo $filename | awk -F "/review.rdoproject.org-config/" '{print $2}')
+          ;;
+        *ci-config*)
+          local jobpath=$(echo $filename | awk -F "/ci-config/" '{print $2}')
+          ;;
+        *tripleo-ci-internal-config.git)
+          local jobpath=$(echo $filename | awk -F "/tripleo-ci-internal-config/" '{print $2}')
+          ;;
+        *tripleo-ci-internal-jobs.git)
+          local jobpath=$(echo $filename | awk -F "/tripleo-ci-internal-jobs/" '{print $2}')
           ;;
       esac
       get_job_uri $repo $jobpath $jobname $filename $linenumber
