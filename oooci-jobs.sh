@@ -1,5 +1,7 @@
-jobname=""
-LOCAL_REPOS_DIR=${LOCAL_REPOS_DIR:-$HOME/Downloads/ooo-job-tool}
+OOOCI_REPOS_PATH=${OOOCI_REPOS_PATH:-$HOME/Downloads/oooci-jobs}
+REFRESH=0
+FOREVA=0
+
 JOB_REPOS=(
 https://github.com/openstack/tripleo-ci.git
 https://github.com/rdo-infra/rdo-jobs.git
@@ -16,7 +18,7 @@ master
 )
 
 function purty_print {
-  echo "tripleo-ci-tool: $1"
+  echo "$0: $1"
 }
 
 function clean_repo {
@@ -29,8 +31,8 @@ function clean_repo {
 
 function setup_repos {
   purty_print "STARTING SETUP"
-  mkdir $LOCAL_REPOS_DIR || true
-  pushd $LOCAL_REPOS_DIR
+  mkdir $OOOCI_REPOS_PATH || true
+  pushd $OOOCI_REPOS_PATH
   for repo in ${JOB_REPOS[@]}; do
     local local_dir=$(basename $repo .git)
     purty_print "CHECKING REPO $local_dir"
@@ -92,8 +94,9 @@ function get_zuul_builds_uri {
     *tripleo-ci.git)
       local zuul_builds="http://zuul.openstack.org/builds?job_name=$jobname"
       ;;
-    *rdo-jobs.git)
+    *rdo-jobs.git|*review.rdoproject.org-config.git)
       local zuul_builds="https://review.rdoproject.org/zuul/builds?job_name=$jobname"
+      echo "DEBUG $zuul_builds"
       ;;
     *tripleo-ci-internal*)
       local zuul_builds="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/builds?job_name=$jobname"
@@ -105,23 +108,25 @@ function get_zuul_builds_uri {
 # use local checkout vs curl the promotion file each time?
 function get_job_promotion_status {
   local jobname=$1
-  local promotion_file_path="$LOCAL_REPOS_DIR/ci-config/ci-scripts/dlrnapi_promoter/config/CentOS-7"
+  local promotion_file_path="$OOOCI_REPOS_PATH/ci-config/ci-scripts/dlrnapi_promoter/config/CentOS-7"
   local promotion_file_uri="https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7"
 
   for branch in ${BRANCHES[@]}; do
     if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
-      purty_print "$jobname PROMOTION CRITERIA $branch - $promotion_file_uri/$branch.ini"
+      local res="IN"
+    else
+      local res="NOT IN"
     fi
+    purty_print "$jobname $res PROMOTION CRITERIA $promotion_file_uri/$branch.ini"
   done
 }
-
 
 # check if voting and echo the definition and pointer to opendev.org
 function process_job_definition {
   local jobname=$1
   for repo in ${JOB_REPOS[@]}; do
     local local_dir=$(basename $repo .git)
-    local res=$(grep -rni "name\: $jobname$" $LOCAL_REPOS_DIR/$local_dir)
+    local res=$(grep -rni "name\: $jobname$" $OOOCI_REPOS_PATH/$local_dir)
     if [[ -n "$res" ]]; then
       local filename=$(echo $res | awk -F ":" '{print $1}')
       local linenumber=$(echo $res | awk -F ":" '{print $2}')
@@ -156,10 +161,77 @@ function process_job_definition {
   done
 }
 
+oooci_jobs_usage () {
+    echo "Usage: $0 [options] jobname"
+    echo "unless you specify --foreva jobname is REQUIRED"
+    echo ""
+    echo "Options:"
+    echo "  -r, --refresh"
+    echo "                      Create git clone of any missing jobs repos into"
+    echo "                      $OOOCI_REPOS_PATH and fetch changes from master"
+    echo "  -p, --path"
+    echo "                      Sets the local path for git cloning repos into."
+    echo "                      Defaults to $OOOCI_REPOS_PATH."
+    echo "  -f, --foreva"
+    echo "                      Runs in a loop for multiple queries. It will"
+    echo "                      first also refresh repos."
+    echo "  -h, --help          print this help and exit"
+}
 
-setup_repos
-while [[ $jobname != "exit" ]] ; do
-    echo -n "it puts the job name here: "
+set -e
+
+# Input argument assignments
+while [ "x$1" != "x" ]; do
+
+    case "$1" in
+        --refresh|-r)
+            # realpath fails if /some/path doesn't exist. It is created later
+            REFRESH=1
+            ;;
+
+        --path|-p)
+            OOOCI_REPOS_PATH=$2
+            shift
+            ;;
+
+        --foreva|-f)
+            FOREVA=1
+            ;;
+
+        --help|-h)
+            oooci_jobs_usage
+            exit
+            ;;
+
+        --) shift
+            break
+            ;;
+
+        -*) echo "ERROR: unknown option: $1" >&2
+            oooci_jobs_usage >&2
+            exit 2
+            ;;
+
+        *)    break
+            ;;
+    esac
+
+    shift
+done
+
+if [[ "$REFRESH" == "1" || "$FOREVA" == "1" ]]; then
+  setup_repos
+fi
+if [[ "$FOREVA" == "1" ]]; then
+  while [[ $jobname != "exit" ]] ; do
+    echo -n "$0: it puts the job name here > "
     read jobname
     process_job_definition $jobname
-done
+  done
+elif [[ $# != 1 ]]; then
+  purty_print "ERROR: you must either specify a job name or pass --foreva"
+  oooci_jobs_usage
+  exit 2
+else
+  process_job_definition $1
+fi
