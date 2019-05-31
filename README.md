@@ -39,19 +39,30 @@ DEBUG https://review.rdoproject.org/zuul/builds?job_name=periodic-tripleo-ci-cen
 
 ## Install oooci-jobs.sh
 
-Just download it and run it! If you like it you might consider moving it somewhere in your $PATH.
+Just download it and run it!
 
 ```
 wget https://raw.githubusercontent.com/marios/tripleo_ruck_job_tool/master/oooci-jobs.sh
 chmod 754 oooci-jobs.sh
 [m@192 ~]$ ./oooci-jobs.sh
-./oooci-jobs.sh: ERROR: you must either specify a job name or pass --foreva
-Usage: ./oooci-jobs.sh [options] jobname
+```
+
+ If you like it you might consider moving it somewhere in your $PATH.
+
+## Usage oooci-jobs.sh
+
+There are two main modes:
+
+  * Single query mode - where you must specify a jobname
+  * Loop mode for multiple queries which you can enable with -f or--foreva
+
+Use --help to see the available options
+```
+[m@192]$ oooci-jobs.sh --help
+Usage: /home/m/Documents/Scripts/oooci-jobs.sh [options] jobname
 unless you specify --foreva jobname is REQUIRED
 
 Options:
-  -r, --refresh
-                      Create git clone of any missing jobs repos into
                       /home/m/Downloads/oooci-jobs and fetch changes from master
   -p, --path
                       Sets the local path for git cloning repos into.
@@ -60,17 +71,12 @@ Options:
                       Runs in a loop for multiple queries. It will
                       first also refresh repos.
   -h, --help          print this help and exit
-
 ```
 
-## Run oooci-jobs.sh
+### First run and repo setup
 
-There are two main modes:
+Unless you use the --foreva mode which always runs the repo setup, the first time you query for a job you will see an error for any missing local repo checkouts. 
 
-  * Single query mode - where you must specify a jobname
-  * Loop mode for multiple queries which you can enable with -f or--foreva
-
-The first time you query for a job you will see an error if any of the expected local repos are missing:
 ```
 [m@192 ]$ ./oooci-jobs.sh tripleo-ci-rhel-8-standalone-rhos-15
 
@@ -81,15 +87,17 @@ The first time you query for a job you will see an error if any of the expected 
 ./oooci-jobs.sh: Run ./oooci-jobs.sh --refresh tripleo-ci-rhel-8-standalone-rhos-15 to setup local repos required for job query
 
 ```
+Re-run and include the --refresh flag in order to setup the local repo checkouts before
+performing the requested job query. The --path flag overrides the local repo checkout
+location, which defaults to $HOME/Downloads/oooci-jobs/. 
 
-You can re-run with --refresh in order to setup the local checkouts required
-for subsequent runs. After you are setup, --refresh can be used as needed in
-order to update the local repo checkouts.
+After all required repos are cloned, --refresh can be used as needed in order to update the local
+repo checkouts.
 
 Note that running with --foreva will first also call the repo setup.
 
 ```
-[m@192 tripleo_ruck_job_tool]$ ./oooci-jobs.sh -f
+[m@192 tripleo_ruck_job_tool]$ ./oooci-jobs.sh --foreva
 
 **** ./oooci-jobs.sh ** 2019-05-31 15:32:27 *****************************************************************
 **** Starting local git clones setup or refresh
