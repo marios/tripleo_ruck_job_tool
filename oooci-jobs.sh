@@ -21,21 +21,32 @@ function purty_print {
   echo "$0: $1"
 }
 
+function print_section_line {
+  echo "**** $0 ** $(date '+%Y-%m-%d %H:%M:%S') *****************************************************************"
+}
+
+function purty_print_section {
+  echo ""
+  print_section_line
+  echo "**** $1 "
+  echo ""
+}
+
 function clean_repo {
   local repo_dir=$1
-  pushd $repo_dir
-  purty_print "PULLING LATEST $repo_dir"
-  git checkout master && git pull
-  popd
+  pushd $repo_dir > /dev/null 2>&1
+  purty_print "PULLING $repo_dir"
+  git checkout master > /dev/null 2>&1
+  git pull
+  popd > /dev/null 2>&1
 }
 
 function setup_repos {
-  purty_print "STARTING SETUP"
-  mkdir $OOOCI_REPOS_PATH || true
-  pushd $OOOCI_REPOS_PATH
+  purty_print_section "Starting local git clones setup or refresh"
+  mkdir -p $OOOCI_REPOS_PATH
+  pushd $OOOCI_REPOS_PATH  > /dev/null 2>&1
   for repo in ${JOB_REPOS[@]}; do
     local local_dir=$(basename $repo .git)
-    purty_print "CHECKING REPO $local_dir"
     if [[ -d $local_dir ]]; then
         clean_repo $local_dir
     else
@@ -43,7 +54,7 @@ function setup_repos {
        git clone $repo
     fi
   done
-  popd
+  popd  > /dev/null 2>&1
   purty_print "SETUP DONE"
 }
 
@@ -64,7 +75,7 @@ function check_voting {
   esac
   purty_print " ... fetching voting info from $uri"
   local voting=$(curl -k $uri | jq '.[] | .voting')
-  purty_print "$jobname is voting: $voting"
+  purty_print "job is voting: $voting"
 }
 
 function get_job_uri {
@@ -75,16 +86,16 @@ function get_job_uri {
   local linenumber=$5
 
   # https://github.com/openstack/tripleo-ci/blob/master/zuul.d/standalone-jobs.yaml#L87
-  # https://code.engineering.redhat.com/gerrit/gitweb?p=openstack/tripleo-ci-internal-jobs.git;a=blob_plain;f=zuul.d/standalone-jobs.yaml;hb=HEAD
+  # https://code.engineering.redhat.com/gerrit/gitweb?p=openstack/tripleo-ci-internal-jobs.git;a=blob;f=zuul.d/standalone-jobs.yaml#l80
   case "$repo" in
     *tripleo-ci-internal*)
       local internal_base_uri="https://code.engineering.redhat.com/gerrit/gitweb?p=openstack"
-      local job_uri="$internal_base_uri/$(basename $repo);a=blob_plain;f=$jobpath;hb=HEAD"
+      local job_uri="$internal_base_uri/$(basename $repo);a=blob;f=$jobpath#l$linenumber"
       ;;
     *)
       local job_uri="${repo::-4}/blob/master/$jobpath#L$linenumber"
   esac
-  purty_print "$jobname DEFINITION $job_uri"
+  purty_print "job DEFINITION $job_uri"
 }
 
 function get_zuul_builds_uri {
@@ -102,7 +113,7 @@ function get_zuul_builds_uri {
       local zuul_builds="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/builds?job_name=$jobname"
       ;;
   esac
-  purty_print "$jobname ZUUL BUILDS $zuul_builds"
+  purty_print "job ZUUL BUILDS $zuul_builds"
 }
 
 # use local checkout vs curl the promotion file each time?
@@ -110,22 +121,29 @@ function get_job_promotion_status {
   local jobname=$1
   local promotion_file_path="$OOOCI_REPOS_PATH/ci-config/ci-scripts/dlrnapi_promoter/config/CentOS-7"
   local promotion_file_uri="https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7"
-
+  purty_print "Checking if job is in promotion criteria"
+  local res=""
   for branch in ${BRANCHES[@]}; do
     if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
-      local res="IN"
+      local res+=" *** IN $branch CRITERIA $promotion_file_uri/$branch.ini *** "
     else
-      local res="NOT IN"
+      local res+="NOT IN $branch "
     fi
-    purty_print "$jobname $res PROMOTION CRITERIA $promotion_file_uri/$branch.ini"
   done
+  purty_print "job $res"
 }
 
 # check if voting and echo the definition and pointer to opendev.org
 function process_job_definition {
   local jobname=$1
+  purty_print_section "Processing job: $jobname"
   for repo in ${JOB_REPOS[@]}; do
     local local_dir=$(basename $repo .git)
+    if [[ ! -d $OOOCI_REPOS_PATH/$local_dir ]]; then
+      purty_print "ERROR: $repo local checkout not found at $OOOCI_REPOS_PATH/$local_dir"
+      purty_print "Run $0 --refresh $jobname to setup local repos required for job query"
+      exit 2
+    fi
     local res=$(grep -rni "name\: $jobname$" $OOOCI_REPOS_PATH/$local_dir)
     if [[ -n "$res" ]]; then
       local filename=$(echo $res | awk -F ":" '{print $1}')
@@ -166,8 +184,6 @@ oooci_jobs_usage () {
     echo "unless you specify --foreva jobname is REQUIRED"
     echo ""
     echo "Options:"
-    echo "  -r, --refresh"
-    echo "                      Create git clone of any missing jobs repos into"
     echo "                      $OOOCI_REPOS_PATH and fetch changes from master"
     echo "  -p, --path"
     echo "                      Sets the local path for git cloning repos into."
@@ -219,16 +235,18 @@ while [ "x$1" != "x" ]; do
     shift
 done
 
-if [[ "$REFRESH" == "1" || "$FOREVA" == "1" ]]; then
+if [[ "$REFRESH" == "1" ]] || [[ "$FOREVA" == "1" ]]; then
   setup_repos
 fi
 if [[ "$FOREVA" == "1" ]]; then
   while [[ $jobname != "exit" ]] ; do
+    purty_print_section "main loop - ctrl-c or 'exit' to exit"
     echo -n "$0: it puts the job name here > "
     read jobname
     process_job_definition $jobname
   done
-elif [[ $# != 1 ]]; then
+elif [[ $# != 1 ]] ; then
+  if [[ "$REFRESH" == "1" ]]; then exit 0; fi # ok if refresh
   purty_print "ERROR: you must either specify a job name or pass --foreva"
   oooci_jobs_usage
   exit 2
