@@ -80,7 +80,52 @@ of the expected local repos are missing
 ```
 
 You can re-run with --refresh in order to setup the local checkouts required
-for subsequent runs. Note that running with --foreva will first also call
-the repo setup.
+for subsequent runs. After you are setup, --refresh can be used at will in
+order to update the local repo checkouts.
+
+Note that running with --foreva will first also call the repo setup.
+
+```
+[m@192 tripleo_ruck_job_tool]$ ./oooci-jobs.sh -f
+
+**** ./oooci-jobs.sh ** 2019-05-31 15:32:27 *****************************************************************
+**** Starting local git clones setup or refresh
+
+./oooci-jobs.sh: PULLING tripleo-ci
+Already up to date.
+./oooci-jobs.sh: PULLING rdo-jobs
+Already up to date.
+./oooci-jobs.sh: PULLING ci-config
+Already up to date.
+./oooci-jobs.sh: PULLING review.rdoproject.org-config
+Already up to date.
+./oooci-jobs.sh: PULLING tripleo-ci-internal-config
+Already up to date.
+./oooci-jobs.sh: PULLING tripleo-ci-internal-jobs
+Already up to date.
+./oooci-jobs.sh: SETUP DONE
+
+**** ./oooci-jobs.sh ** 2019-05-31 15:32:42 *****************************************************************
+**** main loop - ctrl-c or 'exit' to exit
+
+./oooci-jobs.sh: it puts the job name here > tripleo-ci-centos-7-scenario012-standalone
+
+**** ./oooci-jobs.sh ** 2019-05-31 15:34:21 *****************************************************************
+**** Processing job: tripleo-ci-centos-7-scenario012-standalone
+
+./oooci-jobs.sh:  ... fetching voting info from http://zuul.openstack.org/api/job/tripleo-ci-centos-7-scenario012-standalone
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1838  100  1838    0     0   2621      0 --:--:-- --:--:-- --:--:--  2618
+./oooci-jobs.sh: job is voting: false
+./oooci-jobs.sh: job DEFINITION https://github.com/openstack/tripleo-ci/blob/master/zuul.d/standalone-jobs.yaml#L624
+./oooci-jobs.sh: job ZUUL BUILDS http://zuul.openstack.org/builds?job_name=tripleo-ci-centos-7-scenario012-standalone
+
+**** ./oooci-jobs.sh ** 2019-05-31 15:34:22 *****************************************************************
+**** main loop - ctrl-c or 'exit' to exit
+
+./oooci-jobs.sh: it puts the job name here >
+```
+
 
 After you are setup, --refresh can be used at will in order to update repos.
