@@ -58,11 +58,13 @@ There are two main modes:
 
 Use --help to see the available options
 ```
-[m@192]$ oooci-jobs.sh --help
-Usage: /home/m/Documents/Scripts/oooci-jobs.sh [options] jobname
+[m@192 ]$ ./oooci-jobs.sh -h
+Usage: ./oooci-jobs.sh [options] jobname
 unless you specify --foreva jobname is REQUIRED
 
 Options:
+  -r, --refresh
+                      Create git clone of any missing jobs repos into
                       /home/m/Downloads/oooci-jobs and fetch changes from master
   -p, --path
                       Sets the local path for git cloning repos into.
