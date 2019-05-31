@@ -126,6 +126,3 @@ Already up to date.
 
 ./oooci-jobs.sh: it puts the job name here >
 ```
-
-
-After you are setup, --refresh can be used at will in order to update repos.
