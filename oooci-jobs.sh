@@ -184,6 +184,8 @@ oooci_jobs_usage () {
     echo "unless you specify --foreva jobname is REQUIRED"
     echo ""
     echo "Options:"
+    echo "  -r, --refresh"                                                     
+    echo "                      Create git clone of any missing jobs repos into"
     echo "                      $OOOCI_REPOS_PATH and fetch changes from master"
     echo "  -p, --path"
     echo "                      Sets the local path for git cloning repos into."
