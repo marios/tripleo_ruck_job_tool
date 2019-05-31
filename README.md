@@ -1,14 +1,18 @@
 ## README oooci-jobs.sh
 
-The oooci-jobs.sh script is meant as a utility tool to query any tripleo-ci job
-defined upstream, in RDO jobs or internal SF. Jobs are queryied using local
-checkout of repos including [tripleo-ci](https://github.com/openstack/tripleo-ci)
+The oooci-jobs.sh script is a utility to query any tripleo-ci job
+defined upstream, in RDO jobs or internal SF. Jobs are queried using a local
+checkout of all relevant repos including [tripleo-ci](https://github.com/openstack/tripleo-ci)
 [rdo-jobs](https://github.com/rdo-infra/rdo-jobs) and
 [tripleo-ci-internal-jobs](https://code.engineering.redhat.com/gerrit/#/admin/projects/openstack/tripleo-ci-internal-jobs).
+For this reason, at least during initial setup when repos are locally cloned, you will need
+to have RH VPN access to reach code.engineering.redhat.com.
 
-The information returned includes whether the job is voting, a link to the
-job definition and latest zuul builds, and if it is periodic, whether the
-job is in promotion criteria.
+The information returned includes:
+  * if the job is voting
+  * a link to the job definition
+  * a link to latest zuul builds
+  * if the job is in promotion criteria (when job name starts with 'periodic')
 
 Example usage:
 
@@ -35,11 +39,11 @@ DEBUG https://review.rdoproject.org/zuul/builds?job_name=periodic-tripleo-ci-cen
 
 ## Install oooci-jobs.sh
 
-The entire script is in one file. Just download it and run it!
+Just download it and run it! If you like it you might consider moving it somewhere in your $PATH.
 
 ```
-[m@192 ~]$ wget https://raw.githubusercontent.com/marios/tripleo_ruck_job_tool/master/oooci-jobs.sh
-[m@192 ~]$ chmod 754 oooci-jobs.sh
+wget https://raw.githubusercontent.com/marios/tripleo_ruck_job_tool/master/oooci-jobs.sh
+chmod 754 oooci-jobs.sh
 [m@192 ~]$ ./oooci-jobs.sh
 ./oooci-jobs.sh: ERROR: you must either specify a job name or pass --foreva
 Usage: ./oooci-jobs.sh [options] jobname
@@ -61,13 +65,12 @@ Options:
 
 ## Run oooci-jobs.sh
 
-There are two main modes. Single query mode - where you must specify a jobname.
-There is also a loop mode for multiple queries which you can enable with -f or
---foreva.
+There are two main modes:
 
-On first run or the first time you query for a job you will see an error if any
-of the expected local repos are missing
+  * Single query mode - where you must specify a jobname
+  * Loop mode for multiple queries which you can enable with -f or--foreva
 
+The first time you query for a job you will see an error if any of the expected local repos are missing:
 ```
 [m@192 ]$ ./oooci-jobs.sh tripleo-ci-rhel-8-standalone-rhos-15
 
@@ -80,7 +83,7 @@ of the expected local repos are missing
 ```
 
 You can re-run with --refresh in order to setup the local checkouts required
-for subsequent runs. After you are setup, --refresh can be used at will in
+for subsequent runs. After you are setup, --refresh can be used as needed in
 order to update the local repo checkouts.
 
 Note that running with --foreva will first also call the repo setup.
@@ -112,17 +115,4 @@ Already up to date.
 
 **** ./oooci-jobs.sh ** 2019-05-31 15:34:21 *****************************************************************
 **** Processing job: tripleo-ci-centos-7-scenario012-standalone
-
-./oooci-jobs.sh:  ... fetching voting info from http://zuul.openstack.org/api/job/tripleo-ci-centos-7-scenario012-standalone
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100  1838  100  1838    0     0   2621      0 --:--:-- --:--:-- --:--:--  2618
-./oooci-jobs.sh: job is voting: false
-./oooci-jobs.sh: job DEFINITION https://github.com/openstack/tripleo-ci/blob/master/zuul.d/standalone-jobs.yaml#L624
-./oooci-jobs.sh: job ZUUL BUILDS http://zuul.openstack.org/builds?job_name=tripleo-ci-centos-7-scenario012-standalone
-
-**** ./oooci-jobs.sh ** 2019-05-31 15:34:22 *****************************************************************
-**** main loop - ctrl-c or 'exit' to exit
-
-./oooci-jobs.sh: it puts the job name here >
 ```
