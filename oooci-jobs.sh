@@ -107,7 +107,6 @@ function get_zuul_builds_uri {
       ;;
     *rdo-jobs.git|*review.rdoproject.org-config.git)
       local zuul_builds="https://review.rdoproject.org/zuul/builds?job_name=$jobname"
-      echo "DEBUG $zuul_builds"
       ;;
     *tripleo-ci-internal*)
       local zuul_builds="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/builds?job_name=$jobname"
