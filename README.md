@@ -17,23 +17,24 @@ The information returned includes:
 Example usage:
 
 ```
-[m@192 tripleo_ruck_job_tool]$ ./oooci-jobs.sh  periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
+[m@192 tripleo_ruck_job_tool]$  ./oooci-jobs.sh  periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 
-
-**** ./oooci-jobs.sh ** 2019-05-31 15:05:59 *****************************************************************
-**** Processing job: periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
+**** ./oooci-jobs.sh ** 2019-06-03 17:40:55 *****************************************************************
+**** Processing job: periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky 
 
 ./oooci-jobs.sh:  ... fetching voting info from https://review.rdoproject.org/zuul/api/job/periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-100   862  100   862    0     0    420      0  0:00:02  0:00:02 --:--:--   420
+100   862  100   862    0     0    502      0  0:00:01  0:00:01 --:--:--   502
 ./oooci-jobs.sh: job is voting: true
 ./oooci-jobs.sh: job DEFINITION https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/ovb-jobs.yaml#L370
-DEBUG https://review.rdoproject.org/zuul/builds?job_name=periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 ./oooci-jobs.sh: job ZUUL BUILDS https://review.rdoproject.org/zuul/builds?job_name=periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 ./oooci-jobs.sh: Checking if job is in promotion criteria
 18:periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
-./oooci-jobs.sh: job NOT IN queens  *** IN rocky CRITERIA https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7/rocky.ini *** NOT IN stein NOT IN master
+./oooci-jobs.sh: job NOT IN queens  *** IN rocky CRITERIA https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7/rocky.ini *** NOT IN stein NOT IN master 
+./oooci-jobs.sh: Does it want it in the browser? type y or yes - anything else for no > y
+./oooci-jobs.sh: see  firefox
+[m@192 tripleo_ruck_job_tool]$ 
 
 ```
 
