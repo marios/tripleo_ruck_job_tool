@@ -1,7 +1,8 @@
 OOOCI_REPOS_PATH=${OOOCI_REPOS_PATH:-$HOME/Downloads/oooci-jobs}
 REFRESH=0
 FOREVA=0
-
+OOOCI_BROWSER=${OOOCI_BROWSER:- "firefox"} # change me for different browser
+OOOCI_BROWSER_LINKS=""
 JOB_REPOS=(
 https://github.com/openstack/tripleo-ci.git
 https://github.com/rdo-infra/rdo-jobs.git
@@ -61,21 +62,27 @@ function setup_repos {
 function check_voting {
   local jobname=$1
   local repo=$2
+  local uri=""
+  local browser_uri=""
 
   case "$repo" in
     *tripleo-ci.git)
-      local uri="http://zuul.openstack.org/api/job/$jobname"
+      uri="http://zuul.openstack.org/api/job/$jobname"
+      browser_uri="http://zuul.openstack.org/job/$jobname"
       ;;
     *review.rdoproject.org-config.git|*rdo-jobs.git)
-      local uri="https://review.rdoproject.org/zuul/api/job/$jobname"
+      uri="https://review.rdoproject.org/zuul/api/job/$jobname"
+      browser_uri="https://review.rdoproject.org/zuul/job/$jobname"
       ;;
     *tripleo-ci-internal*)
-      local uri="https://sf.hosted.upshift.rdu2.redhat.com/zuul/api/tenant/tripleo-ci-internal/job/$jobname"
+      uri="https://sf.hosted.upshift.rdu2.redhat.com/zuul/api/tenant/tripleo-ci-internal/job/$jobname"
+      browser_uri="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/job/$jobname"
       ;;
   esac
   purty_print " ... fetching voting info from $uri"
   local voting=$(curl -k $uri | jq '.[] | .voting')
   purty_print "job is voting: $voting"
+  OOOCI_BROWSER_LINKS+=" $browser_uri"
 }
 
 function get_job_uri {
@@ -96,6 +103,7 @@ function get_job_uri {
       local job_uri="${repo::-4}/blob/master/$jobpath#L$linenumber"
   esac
   purty_print "job DEFINITION $job_uri"
+  OOOCI_BROWSER_LINKS+=" $job_uri"
 }
 
 function get_zuul_builds_uri {
@@ -113,6 +121,7 @@ function get_zuul_builds_uri {
       ;;
   esac
   purty_print "job ZUUL BUILDS $zuul_builds"
+  OOOCI_BROWSER_LINKS+=" $zuul_builds"
 }
 
 # use local checkout vs curl the promotion file each time?
@@ -125,6 +134,7 @@ function get_job_promotion_status {
   for branch in ${BRANCHES[@]}; do
     if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
       local res+=" *** IN $branch CRITERIA $promotion_file_uri/$branch.ini *** "
+      OOOCI_BROWSER_LINKS+=" $promotion_file_uri/$branch.ini"
     else
       local res+="NOT IN $branch "
     fi
@@ -132,9 +142,21 @@ function get_job_promotion_status {
   purty_print "job $res"
 }
 
-# check if voting and echo the definition and pointer to opendev.org
+function check_open_in_browser {
+  local open_in_browser=""
+  echo -n "$0: Does it want it in the browser? type y or yes - anything else for no > "
+  read open_in_browser
+  if [[ "$open_in_browser" == "y"  ]] || [[ "$open_in_browser" = "yes" ]]; then
+    purty_print "see $OOOCI_BROWSER"
+    $OOOCI_BROWSER $OOOCI_BROWSER_LINKS
+  fi
+}
+
+# Process job find definition/voting/promotion/zuul builds
+# Prompt whether to open results in browser
 function process_job_definition {
   local jobname=$1
+  OOOCI_BROWSER_LINKS=""
   purty_print_section "Processing job: $jobname"
   for repo in ${JOB_REPOS[@]}; do
     local local_dir=$(basename $repo .git)
@@ -173,6 +195,7 @@ function process_job_definition {
       if [[ $jobname =~ "periodic" ]] ; then
         get_job_promotion_status $jobname
       fi
+      check_open_in_browser
     fi
     unset res
   done
@@ -183,7 +206,7 @@ oooci_jobs_usage () {
     echo "unless you specify --foreva jobname is REQUIRED"
     echo ""
     echo "Options:"
-    echo "  -r, --refresh"                                                     
+    echo "  -r, --refresh"
     echo "                      Create git clone of any missing jobs repos into"
     echo "                      $OOOCI_REPOS_PATH and fetch changes from master"
     echo "  -p, --path"
