@@ -126,3 +126,24 @@ Already up to date.
 **** ./oooci-jobs.sh ** 2019-05-31 15:34:21 *****************************************************************
 **** Processing job: tripleo-ci-centos-7-scenario012-standalone
 ```
+
+After processing a job there is a prompt for opening in browser - expected input is 'y' or 'yes' otherwise no
+is assumed. The variable $OOOCI_BROWSER defaults to firefox though you can set it before running to override:
+
+```
+[m@192 tripleo_ruck_job_tool]$ OOOCI_BROWSER=google-chrome oooci-jobs.sh legacy-weirdo-integration-queens-puppet-scenario003
+
+**** oooci-jobs.sh ** 2019-06-03 17:38:28 *****************************************************************
+**** Processing job: legacy-weirdo-integration-queens-puppet-scenario003 
+
+oooci-jobs.sh:  ... fetching voting info from https://review.rdoproject.org/zuul/api/job/legacy-weirdo-integration-queens-puppet-scenario003
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  2195  100  2195    0     0   1608      0  0:00:01  0:00:01 --:--:--  1608
+oooci-jobs.sh: job is voting: true
+oooci-jobs.sh: job DEFINITION https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/zuul-legacy-jobs.yaml#L853
+oooci-jobs.sh: job ZUUL BUILDS https://review.rdoproject.org/zuul/builds?job_name=legacy-weirdo-integration-queens-puppet-scenario003
+oooci-jobs.sh: Does it want it in the browser? type y or yes - anything else for no > y
+oooci-jobs.sh: see google-chrome
+```
+A parameter can be added to override instead of using the OOOCI_BROWSER shell variable if that is requested.
