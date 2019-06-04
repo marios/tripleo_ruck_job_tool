@@ -59,30 +59,34 @@ function setup_repos {
   purty_print "SETUP DONE"
 }
 
-function check_voting {
+function check_voting_and_hound {
   local jobname=$1
   local repo=$2
   local uri=""
   local browser_uri=""
-
+  local hound_uri=""
   case "$repo" in
     *tripleo-ci.git)
       uri="http://zuul.openstack.org/api/job/$jobname"
       browser_uri="http://zuul.openstack.org/job/$jobname"
+      hound_uri="http://codesearch.openstack.org/?q=$jobname"
       ;;
     *review.rdoproject.org-config.git|*rdo-jobs.git)
       uri="https://review.rdoproject.org/zuul/api/job/$jobname"
       browser_uri="https://review.rdoproject.org/zuul/job/$jobname"
+      hound_uri="https://codesearch.rdoproject.org/?q=$jobname"
       ;;
     *tripleo-ci-internal*)
       uri="https://sf.hosted.upshift.rdu2.redhat.com/zuul/api/tenant/tripleo-ci-internal/job/$jobname"
       browser_uri="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/job/$jobname"
+      hound_uri="https://sf.hosted.upshift.rdu2.redhat.com/codesearch/?q=$jobname"
       ;;
   esac
   purty_print " ... fetching voting info from $uri"
   local voting=$(curl -k $uri | jq '.[] | .voting')
   purty_print "job is voting: $voting"
-  OOOCI_BROWSER_LINKS+=" $browser_uri"
+  purty_print "HOUND SEARCH $hound_uri"
+  OOOCI_BROWSER_LINKS+=" $browser_uri $hound_uri"
 }
 
 function get_job_uri {
@@ -169,7 +173,7 @@ function process_job_definition {
     if [[ -n "$res" ]]; then
       local filename=$(echo $res | awk -F ":" '{print $1}')
       local linenumber=$(echo $res | awk -F ":" '{print $2}')
-      check_voting $jobname $repo
+      check_voting_and_hound $jobname $repo
       case "$repo" in
         *tripleo-ci.git)
           local jobpath=$(echo $filename | awk -F "/tripleo-ci/" '{print $2}')
