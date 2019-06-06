@@ -128,7 +128,6 @@ function get_zuul_builds_uri {
   OOOCI_BROWSER_LINKS+=" $zuul_builds"
 }
 
-# use local checkout vs curl the promotion file each time?
 function get_job_promotion_status {
   local jobname=$1
   local promotion_file_path="$OOOCI_REPOS_PATH/ci-config/ci-scripts/dlrnapi_promoter/config/CentOS-7"
@@ -224,12 +223,10 @@ oooci_jobs_usage () {
 
 set -e
 
-# Input argument assignments
 while [ "x$1" != "x" ]; do
 
     case "$1" in
         --refresh|-r)
-            # realpath fails if /some/path doesn't exist. It is created later
             REFRESH=1
             ;;
 
