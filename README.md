@@ -145,7 +145,7 @@ oooci-jobs.sh:  ... fetching voting info from https://review.rdoproject.org/zuul
 oooci-jobs.sh: job is voting: true
 oooci-jobs.sh: job DEFINITION https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/zuul-legacy-jobs.yaml#L853
 oooci-jobs.sh: job ZUUL BUILDS https://review.rdoproject.org/zuul/builds?job_name=legacy-weirdo-integration-queens-puppet-scenario003
-oooci-jobs.sh: Open with  firefox? type y or yes - anything else for no > y
+oooci-jobs.sh: Open with  google-chrome? type y or yes - anything else for no > y
 oooci-jobs.sh: see google-chrome
 ```
 A parameter can be added to override instead of using the OOOCI_BROWSER shell variable if that is requested.
