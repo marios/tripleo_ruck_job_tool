@@ -2,7 +2,8 @@
 
 The oooci-jobs.sh script is a utility to query any tripleo-ci job
 defined upstream, in RDO jobs or internal SF. Jobs are queried using a local
-checkout of all relevant repos including [tripleo-ci](https://github.com/openstack/tripleo-ci)
+checkout of all relevant repos including [tripleo-ci](https:/
+//github.com/openstack/tripleo-ci)
 [rdo-jobs](https://github.com/rdo-infra/rdo-jobs) and
 [tripleo-ci-internal-jobs](https://code.engineering.redhat.com/gerrit/#/admin/projects/openstack/tripleo-ci-internal-jobs).
 For this reason, at least during initial setup when repos are locally cloned, you will need
@@ -32,7 +33,7 @@ Example usage:
 ./oooci-jobs.sh: Checking if job is in promotion criteria
 18:periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 ./oooci-jobs.sh: job NOT IN queens  *** IN rocky CRITERIA https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7/rocky.ini *** NOT IN stein NOT IN master 
-./oooci-jobs.sh: Does it want it in the browser? type y or yes - anything else for no > y
+./oooci-jobs.sh: Open with  firefox? type y or yes - anything else for no > y
 ./oooci-jobs.sh: see  firefox
 [m@192 tripleo_ruck_job_tool]$ 
 
@@ -144,7 +145,7 @@ oooci-jobs.sh:  ... fetching voting info from https://review.rdoproject.org/zuul
 oooci-jobs.sh: job is voting: true
 oooci-jobs.sh: job DEFINITION https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/zuul-legacy-jobs.yaml#L853
 oooci-jobs.sh: job ZUUL BUILDS https://review.rdoproject.org/zuul/builds?job_name=legacy-weirdo-integration-queens-puppet-scenario003
-oooci-jobs.sh: Does it want it in the browser? type y or yes - anything else for no > y
+oooci-jobs.sh: Open with  firefox? type y or yes - anything else for no > y
 oooci-jobs.sh: see google-chrome
 ```
 A parameter can be added to override instead of using the OOOCI_BROWSER shell variable if that is requested.
