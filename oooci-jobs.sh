@@ -84,8 +84,8 @@ function check_voting_and_hound {
   esac
   purty_print " ... fetching voting info from $uri"
   local voting=$(curl -k $uri | jq '.[] | .voting')
-  purty_print "job is voting: $voting"
-  purty_print "HOUND SEARCH $hound_uri"
+  purty_print " *** VOTING *** $voting"
+  purty_print " *** CODE SEARCH *** $hound_uri"
   OOOCI_BROWSER_LINKS+=" $browser_uri $hound_uri"
 }
 
@@ -106,7 +106,7 @@ function get_job_uri {
     *)
       local job_uri="${repo::-4}/blob/master/$jobpath#L$linenumber"
   esac
-  purty_print "job DEFINITION $job_uri"
+  purty_print " *** DEFINITION *** $job_uri"
   OOOCI_BROWSER_LINKS+=" $job_uri"
 }
 
@@ -124,7 +124,7 @@ function get_zuul_builds_uri {
       local zuul_builds="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/builds?job_name=$jobname"
       ;;
   esac
-  purty_print "job ZUUL BUILDS $zuul_builds"
+  purty_print "ZUUL BUILDS $zuul_builds"
   OOOCI_BROWSER_LINKS+=" $zuul_builds"
 }
 
@@ -136,19 +136,19 @@ function get_job_promotion_status {
   local res=""
   for branch in ${BRANCHES[@]}; do
     if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
-      local res+=" *** IN $branch CRITERIA $promotion_file_uri/$branch.ini *** "
+      local res+=" *** IN $branch CRITERIA *** $promotion_file_uri/$branch.ini  "
       OOOCI_BROWSER_LINKS+=" $promotion_file_uri/$branch.ini"
     else
       local res+="NOT IN $branch "
     fi
   done
-  purty_print "job $res"
+  purty_print "$res"
 }
 
 function check_open_in_browser {
   local open_in_browser=""
-  purty_print "COLLECTED LINKS DUMP: $OOOCI_BROWSER_LINKS "
-  echo -n "$0: Open with $OOOCI_BROWSER? type y or yes - anything else for no > "
+  purty_print "*** LINKS DUMP *** $OOOCI_BROWSER_LINKS "
+  echo -n "$0: Open that ^^^ with $OOOCI_BROWSER? type y or yes - anything else for no > "
   read open_in_browser
   if [[ "$open_in_browser" == "y"  ]] || [[ "$open_in_browser" = "yes" ]]; then
     purty_print "see $OOOCI_BROWSER"
@@ -200,6 +200,7 @@ function process_job_definition {
         get_job_promotion_status $jobname
       fi
       check_open_in_browser
+      purty_print "END $jobname"
     fi
     unset res
   done
