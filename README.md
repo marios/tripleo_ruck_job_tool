@@ -11,6 +11,7 @@ to have RH VPN access to reach code.engineering.redhat.com.
 
 The information returned includes:
   * if the job is voting
+  * a link to the relevant codesearch for the job
   * a link to the job definition
   * a link to latest zuul builds
   * if the job is in promotion criteria (when job name starts with 'periodic')
