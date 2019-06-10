@@ -124,7 +124,7 @@ function get_zuul_builds_uri {
       local zuul_builds="https://sf.hosted.upshift.rdu2.redhat.com/zuul/t/tripleo-ci-internal/builds?job_name=$jobname"
       ;;
   esac
-  purty_print "ZUUL BUILDS $zuul_builds"
+  purty_print " *** ZUUL BUILDS *** $zuul_builds"
   OOOCI_BROWSER_LINKS+=" $zuul_builds"
 }
 
