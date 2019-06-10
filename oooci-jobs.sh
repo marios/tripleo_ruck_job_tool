@@ -132,11 +132,10 @@ function get_job_promotion_status {
   local jobname=$1
   local promotion_file_path="$OOOCI_REPOS_PATH/ci-config/ci-scripts/dlrnapi_promoter/config/CentOS-7"
   local promotion_file_uri="https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7"
-  purty_print "Checking if job is in promotion criteria"
-  local res=""
+  local res=" *** PROMOTION CRITERIA *** "
   for branch in ${BRANCHES[@]}; do
     if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
-      local res+=" *** IN $branch CRITERIA *** $promotion_file_uri/$branch.ini  "
+      local res+=" ** IN $branch ** $promotion_file_uri/$branch.ini  "
       OOOCI_BROWSER_LINKS+=" $promotion_file_uri/$branch.ini"
     else
       local res+="NOT IN $branch "
