@@ -147,7 +147,7 @@ function get_job_promotion_status {
 function check_open_in_browser {
   local open_in_browser=""
   purty_print " *** COLLECTED URLs *** $OOOCI_BROWSER_LINKS "
-  echo -n "$0: *** Open URLs with $OOOCI_BROWSER? *** type y or yes - anything else for no > "
+  echo -n "$0:  *** Open URLs with $OOOCI_BROWSER? *** type y or yes - anything else for no > "
   read open_in_browser
   if [[ "$open_in_browser" == "y"  ]] || [[ "$open_in_browser" = "yes" ]]; then
     purty_print "see $OOOCI_BROWSER"
