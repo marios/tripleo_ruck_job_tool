@@ -12,6 +12,7 @@ https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-config.
 https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-jobs.git
 )
 BRANCHES=(
+pike
 queens
 rocky
 stein
