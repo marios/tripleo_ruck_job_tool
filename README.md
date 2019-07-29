@@ -4,10 +4,10 @@ The oooci-jobs.sh script is a utility to query any tripleo-ci job
 defined upstream, in RDO jobs or internal SF. Jobs are queried using a local
 checkout of all relevant repos including [tripleo-ci](https:/
 //github.com/openstack/tripleo-ci)
-[rdo-jobs](https://github.com/rdo-infra/rdo-jobs) and
-[tripleo-ci-internal-jobs](https://code.engineering.redhat.com/gerrit/#/admin/projects/openstack/tripleo-ci-internal-jobs).
-For this reason, at least during initial setup when repos are locally cloned, you will need
-to have RH VPN access to reach code.engineering.redhat.com.
+[rdo-jobs](https://github.com/rdo-infra/rdo-jobs)
+
+Assuming you can access code.engineering.redhat. repos the --dstream|-d option
+allows you to include those in a job search.
 
 The information returned includes:
   * if the job is voting
@@ -22,7 +22,7 @@ Example usage:
 [m@192 ~]$ oooci-jobs.sh  periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 
 **** oooci-jobs.sh ** 2019-06-10 17:24:56 *****************************************************************
-**** Processing job: periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky 
+**** Processing job: periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 
 oooci-jobs.sh:  ... fetching voting info from https://review.rdoproject.org/zuul/api/job/periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -33,8 +33,8 @@ oooci-jobs.sh:  *** CODE SEARCH *** https://codesearch.rdoproject.org/?q=periodi
 oooci-jobs.sh:  *** DEFINITION *** https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/ovb-jobs.yaml#L299
 oooci-jobs.sh:  *** ZUUL BUILDS *** https://review.rdoproject.org/zuul/builds?job_name=periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 18:periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
-oooci-jobs.sh:  *** PROMOTION CRITERIA *** NOT IN queens  ** IN rocky ** https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7/rocky.ini  NOT IN stein NOT IN master 
-oooci-jobs.sh:  *** COLLECTED URLs ***  https://review.rdoproject.org/zuul/job/periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky https://codesearch.rdoproject.org/?q=periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/ovb-jobs.yaml#L299 https://review.rdoproject.org/zuul/builds?job_name=periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7/rocky.ini 
+oooci-jobs.sh:  *** PROMOTION CRITERIA *** NOT IN queens  ** IN rocky ** https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7/rocky.ini  NOT IN stein NOT IN master
+oooci-jobs.sh:  *** COLLECTED URLs ***  https://review.rdoproject.org/zuul/job/periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky https://codesearch.rdoproject.org/?q=periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/ovb-jobs.yaml#L299 https://review.rdoproject.org/zuul/builds?job_name=periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7/rocky.ini
 oooci-jobs.sh:  *** Open URLs with  firefox? *** type y or yes - anything else for no > y
 oooci-jobs.sh: see  firefox
 oooci-jobs.sh: END periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
@@ -65,22 +65,17 @@ Use --help to see the available options
 Usage: ./oooci-jobs.sh [options] jobname
 unless you specify --foreva jobname is REQUIRED
 
-Options:
-  -r, --refresh
-                      Create git clone of any missing jobs repos into
-                      /home/m/Downloads/oooci-jobs and fetch changes from master
-  -p, --path
-                      Sets the local path for git cloning repos into.
-                      Defaults to /home/m/Downloads/oooci-jobs.
-  -f, --foreva
-                      Runs in a loop for multiple queries. It will
-                      first also refresh repos.
+... #various options available
   -h, --help          print this help and exit
 ```
 
+To include the downstream repos like code.engineering.redhat.* you need to add
+the --dstream or -d flag in the query. The default is to *not* include those
+in the job processing.
+
 ### First run and repo setup
 
-Unless you use the --foreva mode which always runs the repo setup, the first time you query for a job you will see an error for any missing local repo checkouts. 
+Unless you use the --foreva mode which always runs the repo setup, the first time you query for a job you will see an error for any missing local repo checkouts.
 
 ```
 [m@192 ]$ ./oooci-jobs.sh tripleo-ci-rhel-8-standalone-rhos-15
@@ -94,7 +89,7 @@ Unless you use the --foreva mode which always runs the repo setup, the first tim
 ```
 Re-run and include the --refresh flag in order to setup the local repo checkouts before
 performing the requested job query. The --path flag overrides the local repo checkout
-location, which defaults to $HOME/Downloads/oooci-jobs/. 
+location, which defaults to $HOME/Downloads/oooci-jobs/.
 
 After all required repos are cloned, --refresh can be used as needed in order to update the local
 repo checkouts.
@@ -137,7 +132,7 @@ is assumed. The variable $OOOCI_BROWSER defaults to firefox though you can set i
 [m@192 ~]$ OOOCI_BROWSER=google-chrome oooci-jobs.sh legacy-weirdo-integration-queens-puppet-scenario003
 
 **** oooci-jobs.sh ** 2019-06-10 17:28:05 *****************************************************************
-**** Processing job: legacy-weirdo-integration-queens-puppet-scenario003 
+**** Processing job: legacy-weirdo-integration-queens-puppet-scenario003
 
 oooci-jobs.sh:  ... fetching voting info from https://review.rdoproject.org/zuul/api/job/legacy-weirdo-integration-queens-puppet-scenario003
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -147,7 +142,7 @@ oooci-jobs.sh:  *** VOTING *** true
 oooci-jobs.sh:  *** CODE SEARCH *** https://codesearch.rdoproject.org/?q=legacy-weirdo-integration-queens-puppet-scenario003
 oooci-jobs.sh:  *** DEFINITION *** https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/zuul-legacy-jobs.yaml#L853
 oooci-jobs.sh:  *** ZUUL BUILDS *** https://review.rdoproject.org/zuul/builds?job_name=legacy-weirdo-integration-queens-puppet-scenario003
-oooci-jobs.sh:  *** COLLECTED URLs ***  https://review.rdoproject.org/zuul/job/legacy-weirdo-integration-queens-puppet-scenario003 https://codesearch.rdoproject.org/?q=legacy-weirdo-integration-queens-puppet-scenario003 https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/zuul-legacy-jobs.yaml#L853 https://review.rdoproject.org/zuul/builds?job_name=legacy-weirdo-integration-queens-puppet-scenario003 
+oooci-jobs.sh:  *** COLLECTED URLs ***  https://review.rdoproject.org/zuul/job/legacy-weirdo-integration-queens-puppet-scenario003 https://codesearch.rdoproject.org/?q=legacy-weirdo-integration-queens-puppet-scenario003 https://github.com/rdo-infra/rdo-jobs/blob/master/zuul.d/zuul-legacy-jobs.yaml#L853 https://review.rdoproject.org/zuul/builds?job_name=legacy-weirdo-integration-queens-puppet-scenario003
 oooci-jobs.sh:  *** Open URLs with google-chrome? *** type y or yes - anything else for no > y
 oooci-jobs.sh: see google-chrome
 [16867:16867:0610/172816.502231:ERROR:sandbox_linux.cc(368)] InitializeSandbox() called with multiple threads in process gpu-process.

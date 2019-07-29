@@ -8,9 +8,15 @@ https://github.com/openstack/tripleo-ci.git
 https://github.com/rdo-infra/rdo-jobs.git
 https://github.com/rdo-infra/ci-config.git
 https://github.com/rdo-infra/review.rdoproject.org-config.git
+)
+DSTREAM=0 # default to not checking code.engineering - see --dstream/-d option
+DSTREAM_JOB_REPOS=(
 https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-config.git
 https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-jobs.git
 )
+
+
+
 BRANCHES=(
 pike
 queens
@@ -211,16 +217,24 @@ oooci_jobs_usage () {
     echo "unless you specify --foreva jobname is REQUIRED"
     echo ""
     echo "Options:"
-    echo "  -r, --refresh"
-    echo "                      Create git clone of any missing jobs repos into"
-    echo "                      $OOOCI_REPOS_PATH and fetch changes from master"
-    echo "  -p, --path"
-    echo "                      Sets the local path for git cloning repos into."
-    echo "                      Defaults to $OOOCI_REPOS_PATH."
-    echo "  -f, --foreva"
-    echo "                      Runs in a loop for multiple queries. It will"
+    echo ""
+    echo "  -d, --dstream       Include code.engineering repos if you have"
+    echo "                      access to those. The default is to not include"
+    echo "                      the downstream repos."
+    echo ""
+    echo "  -f, --foreva        Runs in a loop for multiple queries. It will"
     echo "                      first also refresh repos."
+    echo ""
+    echo "  -p, --path          Sets the local path for git cloning repos into."
+    echo "                      Defaults to $OOOCI_REPOS_PATH."
+    echo ""
+    echo "  -r, --refresh       Create git clone of any missing jobs repos into"
+    echo "                      $OOOCI_REPOS_PATH and fetch changes from master"
+    echo ""
     echo "  -h, --help          print this help and exit"
+    echo ""
+    echo "  https://github.com/marios/tripleo_ruck_job_tool"
+    echo ""
 }
 
 set -e
@@ -239,6 +253,10 @@ while [ "x$1" != "x" ]; do
 
         --foreva|-f)
             FOREVA=1
+            ;;
+
+        --dstream|-d)
+            DSTREAM=1
             ;;
 
         --help|-h)
@@ -261,6 +279,12 @@ while [ "x$1" != "x" ]; do
 
     shift
 done
+
+if [[ "$DSTREAM" == "1" ]] ; then
+    # include downstream repos
+    JOB_REPOS=("${JOB_REPOS[@]}" "${DSTREAM_JOB_REPOS[@]}")
+    purty_print "Enabling code.engineering repos in job search"
+fi
 
 if [[ "$REFRESH" == "1" ]] || [[ "$FOREVA" == "1" ]]; then
   setup_repos
