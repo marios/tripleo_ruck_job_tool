@@ -26,11 +26,11 @@ master
 )
 
 function purty_print {
-  echo "$0: $1"
+  echo "$(basename $0): $1"
 }
 
 function print_section_line {
-  echo "**** $0 ** $(date '+%Y-%m-%d %H:%M:%S') *****************************************************************"
+  echo "**** $(basename $0) ** $(date '+%Y-%m-%d %H:%M:%S') *****************************************************************"
 }
 
 function purty_print_section {
@@ -292,7 +292,7 @@ fi
 if [[ "$FOREVA" == "1" ]]; then
   while [[ $jobname != "exit" ]] ; do
     purty_print_section "main loop - ctrl-c or 'exit' to exit"
-    echo -n "$0: it puts the job name here > "
+    echo -n "$(basename $0): it puts the job name here > "
     read jobname
     process_job_definition $jobname
   done
