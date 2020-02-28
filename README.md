@@ -1,4 +1,15 @@
-## README oooci-jobs.sh
+## Install oooci-jobs.sh
+
+Just download it and run it!
+
+```
+wget https://raw.githubusercontent.com/marios/tripleo_ruck_job_tool/master/oooci-jobs.sh
+chmod 754 oooci-jobs.sh
+[m@192 ~]$ ./oooci-jobs.sh
+```
+
+ If you like it you might consider moving it somewhere in your $PATH.
+
 
 The oooci-jobs.sh script is a utility to query any tripleo-ci job
 defined upstream, in RDO jobs or internal SF. Jobs are queried using a local
@@ -39,18 +50,6 @@ oooci-jobs.sh:  *** Open URLs with  firefox? *** type y or yes - anything else f
 oooci-jobs.sh: see  firefox
 oooci-jobs.sh: END periodic-tripleo-ci-centos-7-ovb-3ctlr_1comp-featureset001-rocky
 ```
-
-## Install oooci-jobs.sh
-
-Just download it and run it!
-
-```
-wget https://raw.githubusercontent.com/marios/tripleo_ruck_job_tool/master/oooci-jobs.sh
-chmod 754 oooci-jobs.sh
-[m@192 ~]$ ./oooci-jobs.sh
-```
-
- If you like it you might consider moving it somewhere in your $PATH.
 
 ## Usage oooci-jobs.sh
 
