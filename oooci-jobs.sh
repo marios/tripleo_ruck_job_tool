@@ -15,7 +15,11 @@ https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-config.
 https://code.engineering.redhat.com/gerrit/openstack/tripleo-ci-internal-jobs.git
 )
 
-
+DISTROS=(
+CentOS-7
+CentOS-8
+RedHat-8
+)
 
 BRANCHES=(
 pike
@@ -138,16 +142,18 @@ function get_zuul_builds_uri {
 
 function get_job_promotion_status {
   local jobname=$1
-  local promotion_file_path="$OOOCI_REPOS_PATH/ci-config/ci-scripts/dlrnapi_promoter/config/CentOS-7"
-  local promotion_file_uri="https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/CentOS-7"
   local res=" *** PROMOTION CRITERIA *** "
-  for branch in ${BRANCHES[@]}; do
-    if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
-      local res+=" ** IN $branch ** $promotion_file_uri/$branch.ini  "
-      OOOCI_BROWSER_LINKS+=" $promotion_file_uri/$branch.ini"
-    else
-      local res+="NOT IN $branch "
-    fi
+  for distro in ${DISTROS[@]}; do
+    local promotion_file_path="$OOOCI_REPOS_PATH/ci-config/ci-scripts/dlrnapi_promoter/config/$distro"
+    local promotion_file_uri="https://github.com/rdo-infra/ci-config/blob/master/ci-scripts/dlrnapi_promoter/config/$distro"
+    for branch in ${BRANCHES[@]}; do
+      if [[ -f $promotion_file_path/$branch.ini ]]; then
+        if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
+          local res+=" ** IN $branch ** $promotion_file_uri/$branch.ini  "
+          OOOCI_BROWSER_LINKS+=" $promotion_file_uri/$branch.ini"
+        fi
+      fi
+    done
   done
   purty_print "$res"
 }
@@ -156,7 +162,7 @@ function check_open_in_browser {
   local open_in_browser=""
   purty_print " *** COLLECTED URLs *** $OOOCI_BROWSER_LINKS "
   echo -n "$0:  *** Open URLs with $OOOCI_BROWSER? *** type y or yes - anything else for no > "
-  read open_in_browser
+  read -t 3 -n 1 open_in_browser || true
   if [[ "$open_in_browser" == "y"  ]] || [[ "$open_in_browser" = "yes" ]]; then
     purty_print "see $OOOCI_BROWSER"
     $OOOCI_BROWSER $OOOCI_BROWSER_LINKS
