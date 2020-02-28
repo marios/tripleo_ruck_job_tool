@@ -5,7 +5,7 @@ Just download it and run it!
 ```
 wget https://raw.githubusercontent.com/marios/tripleo_ruck_job_tool/master/oooci-jobs.sh
 chmod 754 oooci-jobs.sh
-[m@192 ~]$ ./oooci-jobs.sh
+[m@192 ~]$ ./oooci-jobs.sh -f -d
 ```
 
  If you like it you might consider moving it somewhere in your $PATH.
