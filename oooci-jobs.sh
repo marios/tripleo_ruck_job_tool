@@ -149,8 +149,14 @@ function get_job_promotion_status {
     for branch in ${BRANCHES[@]}; do
       if [[ -f $promotion_file_path/$branch.ini ]]; then
         if grep -rni "^$jobname$" $promotion_file_path/$branch.ini ; then
-          local res+=" ** IN $branch ** $promotion_file_uri/$branch.ini  "
+          local res+=" ** INTEGRATION $branch ** $promotion_file_uri/$branch.ini  "
           OOOCI_BROWSER_LINKS+=" $promotion_file_uri/$branch.ini"
+        fi
+      fi
+      if [[ -f $promotion_file_path/component/$branch.yaml ]]; then
+        if grep -rni "$jobname$" $promotion_file_path/component/$branch.yaml ; then
+         local res+=" ** COMPONENT $branch ** $promotion_file_uri/component/$branch.yaml  "$
+          OOOCI_BROWSER_LINKS+=" $promotion_file_uri/component/$branch.yaml"
         fi
       fi
     done
