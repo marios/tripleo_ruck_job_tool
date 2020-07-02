@@ -95,7 +95,7 @@ function check_voting_and_hound {
       ;;
   esac
   purty_print " ... fetching voting info from $uri"
-  local voting=$(curl -k $uri | jq '.[] | .voting')
+  local voting=$(curl -Lk $uri | jq '.[] | .voting')
   purty_print " *** VOTING *** $voting"
   purty_print " *** CODE SEARCH *** $hound_uri"
   OOOCI_BROWSER_LINKS+=" $browser_uri $hound_uri"
