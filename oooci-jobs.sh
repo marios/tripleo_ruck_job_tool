@@ -86,7 +86,7 @@ function check_voting_and_hound {
     *review.rdoproject.org-config.git|*rdo-jobs.git)
       uri="https://review.rdoproject.org/zuul/api/job/$jobname"
       browser_uri="https://review.rdoproject.org/zuul/job/$jobname"
-      hound_uri="https://codesearch.rdoproject.org/?q=$jobname"
+      hound_uri="https://codesearch.rdoproject.org/codesearch/?q=$jobname"
       ;;
     *tripleo-ci-internal*)
       uri="https://sf.hosted.upshift.rdu2.redhat.com/zuul/api/tenant/tripleo-ci-internal/job/$jobname"
